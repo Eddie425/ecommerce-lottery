@@ -1,0 +1,40 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: ecommerce-lottery
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/lottery}
+    username: ${DB_USERNAME:lottery}
+    password: ${DB_PASSWORD:lottery}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT_MS:30000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  security:
+    user:
+      username: ${LOTTERY_USER_USERNAME:player}
+      password: ${LOTTERY_USER_PASSWORD:local-player-password}
+    admin:
+      username: ${LOTTERY_ADMIN_USERNAME:admin}
+      password: ${LOTTERY_ADMIN_PASSWORD:local-admin-password}

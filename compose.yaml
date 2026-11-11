@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-lottery}
+      POSTGRES_USER: ${DB_USERNAME:-lottery}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-lottery}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-lottery} -d ${DB_NAME:-lottery}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-lottery}
+      DB_USERNAME: ${DB_USERNAME:-lottery}
+      DB_PASSWORD: ${DB_PASSWORD:-lottery}
+      DB_POOL_MAX_SIZE: ${DB_POOL_MAX_SIZE:-20}
+      DB_POOL_MIN_IDLE: ${DB_POOL_MIN_IDLE:-5}
+      LOTTERY_USER_USERNAME: ${LOTTERY_USER_USERNAME:-player}
+      LOTTERY_USER_PASSWORD: ${LOTTERY_USER_PASSWORD:-local-player-password}
+      LOTTERY_ADMIN_USERNAME: ${LOTTERY_ADMIN_USERNAME:-admin}
+      LOTTERY_ADMIN_PASSWORD: ${LOTTERY_ADMIN_PASSWORD:-local-admin-password}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
